@@ -197,7 +197,8 @@ const App = () => {
         updatedAt:   serverTimestamp(),
         ownerId:     userProfile?.isAdmin ? 'ADMIN' : user.uid,
       };
-      if (formRecipe.id) {
+      const isRealFirestoreId = formRecipe.id && !String(formRecipe.id).startsWith('__sample_');
+      if (isRealFirestoreId) {
         await updateDoc(doc(db, 'piekarz_recipes', formRecipe.id), payload);
       } else {
         await addDoc(collection(db, 'piekarz_recipes'), payload);
