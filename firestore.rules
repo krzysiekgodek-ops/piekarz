@@ -24,20 +24,24 @@ service cloud.firestore {
       allow read, write, update, delete: if isAdmin();
     }
 
-    match /piekarz_recipes/{recipeId} {
+    match /piekarz_categories/{doc} {
       allow read: if true;
-      allow create: if request.auth != null && (isAdmin() || canCreateRecipe());
-      allow update, delete: if request.auth != null && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    match /piekarz_categories/{catId} {
+    match /piekarz_recipes/{doc} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null &&
+        (resource.data.ownerId == request.auth.uid ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
     }
 
-    match /piekarz_sourdough/{docId} {
+    match /piekarz_sourdough/{doc} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
     match /settings/{docId}   { allow read: if true; allow write: if isAdmin(); }
