@@ -236,34 +236,77 @@ const AdminPanel = ({ allUsers, categories, ads, allRecipes = [], updatePlayerPl
 
   const loadCategories = async () => {
     setCatsLoading(true);
-    const snap = await getDocs(collection(db, 'piekarz_categories'));
-    setCatsState(snap.docs.map(d => ({ id: d.id, name: d.data().name })).sort((a, b) => a.name.localeCompare(b.name, 'pl')));
-    setCatsLoading(false);
+    try {
+      const snap = await getDocs(collection(db, 'piekarz_categories'));
+      console.log('[Kategorie] pobrano dokumentów:', snap.size);
+      setCatsState(
+        snap.docs
+          .map(d => ({ id: d.id, name: d.data().name }))
+          .sort((a, b) => a.name.localeCompare(b.name, 'pl'))
+      );
+    } catch (e) {
+      console.error('[Kategorie] błąd ładowania:', e);
+      alert('Błąd ładowania kategorii: ' + e.message);
+    } finally {
+      setCatsLoading(false);
+    }
   };
 
   const addCategory = async () => {
     const name = newCatName.trim();
     if (!name) return;
-    if (catsState.some(c => c.name.toLowerCase() === name.toLowerCase())) return alert('Kategoria już istnieje.');
-    await addDoc(collection(db, 'piekarz_categories'), { name });
-    setNewCatName('');
-    await loadCategories();
+    if (catsState.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+      return alert('Kategoria już istnieje.');
+    }
+    const payload = {
+      name,
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser?.email || 'admin',
+    };
+    console.log('[Kategorie] dodawanie:', payload);
+    try {
+      const ref = await addDoc(collection(db, 'piekarz_categories'), payload);
+      console.log('[Kategorie] dodano, id:', ref.id);
+      setNewCatName('');
+      await loadCategories();
+    } catch (e) {
+      console.error('[Kategorie] błąd dodawania:', e);
+      alert('Błąd dodawania kategorii: ' + e.message);
+    }
   };
 
   const deleteCategory = async (id) => {
     if (!window.confirm('Usuń kategorię?')) return;
-    await deleteDoc(doc(db, 'piekarz_categories', id));
-    await loadCategories();
+    console.log('[Kategorie] usuwanie id:', id);
+    try {
+      await deleteDoc(doc(db, 'piekarz_categories', id));
+      console.log('[Kategorie] usunięto');
+      await loadCategories();
+    } catch (e) {
+      console.error('[Kategorie] błąd usuwania:', e);
+      alert('Błąd usuwania kategorii: ' + e.message);
+    }
   };
 
   const seedDefaultCats = async () => {
     const existing = catsState.map(c => c.name.toLowerCase());
     const toAdd = DEFAULT_CATS.filter(c => !existing.includes(c.toLowerCase()));
     if (toAdd.length === 0) return alert('Wszystkie kategorie już istnieją.');
-    for (const name of toAdd) {
-      await addDoc(collection(db, 'piekarz_categories'), { name });
+    console.log('[Kategorie] seed:', toAdd);
+    try {
+      for (const name of toAdd) {
+        await addDoc(collection(db, 'piekarz_categories'), {
+          name,
+          createdAt: serverTimestamp(),
+          createdBy: auth.currentUser?.email || 'admin',
+        });
+      }
+      console.log('[Kategorie] seed zakończony');
+      await loadCategories();
+    } catch (e) {
+      console.error('[Kategorie] błąd seed:', e);
+      alert('Błąd dodawania kategorii domyślnych: ' + e.message);
     }
-    await loadCategories();
   };
 
   const exportUsersCSV = () => {
