@@ -12,7 +12,7 @@ const KALKULATORY = [
     type: 'internal',
     banner: '/banner_piekarz.png',
     logo: '/logo_piekarz.png',
-    buttonColor: 'var(--ebra-accent)',
+    buttonColor: '#DC2626',
   },
   {
     id: 'masarski',

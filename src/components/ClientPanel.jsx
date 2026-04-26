@@ -302,8 +302,7 @@ const ClientPanel = ({
                 <button
                   key={plan.id}
                   onClick={() => handleCheckout(plan)}
-                  disabled={!plan.paymentLink}
-                  className="w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left"
                   style={cardStyle}
                   onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = hoverBg; }}
                   onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = defaultBg; }}
