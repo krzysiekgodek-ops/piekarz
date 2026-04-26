@@ -329,7 +329,7 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
 
             {/* ── SEKCJA 3 — Składniki ── */}
             <div>
-              <div className="flex justify-between items-center mb-3">
+              <div className="flex justify-between items-center mb-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-dim)]">Sekcja 3 — Składniki</p>
                 <button
                   onClick={addIngredient}
@@ -338,6 +338,9 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                   <Plus size={13} /> Składnik
                 </button>
               </div>
+              <p className="text-[9px] text-[var(--text-dim)] mb-3 px-1">
+                Podaj <strong>% wagowy od mąki</strong> — np. woda 67 = 670 g przy 1 kg mąki
+              </p>
               {form.ingredients.length === 0 && (
                 <p className="text-[10px] text-[var(--text-dim)] italic px-2">Brak składników — kliknij + aby dodać</p>
               )}
@@ -351,7 +354,7 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                   />
                   <input
                     type="number" min="0" step="0.1"
-                    placeholder="Ilość"
+                    placeholder="% mąki"
                     className={`w-20 text-center font-black ${smInputCls}`}
                     value={ing.percent ?? ''}
                     onChange={e => updateIngredient(i, 'percent', e.target.value)}

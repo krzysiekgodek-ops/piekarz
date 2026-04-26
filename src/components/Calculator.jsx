@@ -24,7 +24,7 @@ const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, on
 
     const ingredients = (recipe.ingredients || []).map(ing => ({
       ...ing,
-      grams: Math.round((Number(ing.percent ?? 0) / 100) * totalFlourG),
+      grams: parseFloat(((Number(ing.percent ?? 0) / 100) * totalFlourG).toFixed(1)),
     }));
 
     // Weryfikacja w konsoli (Problem 4)
