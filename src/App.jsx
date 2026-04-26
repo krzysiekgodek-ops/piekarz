@@ -181,7 +181,7 @@ const App = () => {
       const payload = {
         name:        formRecipe.name,
         category:    formRecipe.category,
-        flours:      (formRecipe.flours || []).map(f => ({ name: f.name, percent: Number(f.percent ?? 0) })),
+        flours:      (formRecipe.flours || []).map(f => ({ name: f.name, percent: Number(f.percent ?? 0), kg: Number(f.kg ?? 0) })),
         ingredients: (formRecipe.ingredients || []).map(ing => ({ name: ing.name, percent: Number(ing.percent ?? 0), unit: ing.unit || 'g' })),
         waterTemp:   formRecipe.waterTemp != null ? Number(formRecipe.waterTemp) : null,
         stages:      (formRecipe.stages || []).map(s => ({
