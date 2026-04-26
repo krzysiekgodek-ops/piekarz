@@ -51,6 +51,7 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
   });
 
   const [isUploading, setIsUploading] = useState(false);
+  const [percentsCalculated, setPercentsCalculated] = useState(!isNew);
 
   // Suma mąki zawsze w kg (źródło prawdy)
   const totalFlourKg = useMemo(
@@ -66,10 +67,13 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
 
   // ── Flour handlers ──
 
-  const addFlour = () =>
+  const addFlour = () => {
+    setPercentsCalculated(false);
     setForm(prev => ({ ...prev, flours: [{ name: '', kg: 0, unit: 'kg' }, ...prev.flours] }));
+  };
 
   const updateFlour = (i, field, value) => {
+    setPercentsCalculated(false);
     const list = [...form.flours];
     if (field === 'amount') {
       // Konwersja z wybranej jednostki na kg (zawsze zapisujemy kg)
@@ -83,35 +87,21 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
 
   const removeFlour = (i) => {
     if (form.flours.length <= 1) return;
+    setPercentsCalculated(false);
     setForm(prev => ({ ...prev, flours: prev.flours.filter((_, idx) => idx !== i) }));
   };
 
-  // Suwak/input łącznej ilości mąki — skaluje proporcjonalnie
-  const setTotalFlour = (newTotal) => {
-    const total = Math.max(0, Math.min(10, Number(newTotal) || 0));
-    if (totalFlourKg <= 0) {
-      const kg = form.flours.length > 0 ? parseFloat((total / form.flours.length).toFixed(3)) : 0;
-      setForm(prev => ({ ...prev, flours: prev.flours.map(f => ({ ...f, kg })) }));
-    } else {
-      const scale = total / totalFlourKg;
-      setForm(prev => ({
-        ...prev,
-        flours: prev.flours.map(f => ({ ...f, kg: parseFloat((Number(f.kg) * scale).toFixed(3)) })),
-      }));
-    }
-  };
-
-  // Przelicz % — oblicza i loguje udziały do konsoli (Problem 2 + 4)
   const recalcPercents = () => {
-    const total = totalFlourKg;
-    console.group('[Receptura] Przeliczenie mąki:');
-    form.flours.forEach((f, i) => {
-      const pct = total > 0 ? ((Number(f.kg) / total) * 100).toFixed(2) : '0.00';
-      const display = f.unit === 'g' ? `${(f.kg * 1000).toFixed(0)}g` : `${f.kg}kg`;
-      console.log(`  ${f.name || 'Mąka ' + (i + 1)}: ${display} = ${pct}%`);
-    });
-    console.log(`  Suma mąki: ${total.toFixed(3)} kg`);
-    console.groupEnd();
+    const totalG = form.flours.reduce((sum, f) => sum + Number(f.kg || 0) * 1000, 0);
+    if (totalG <= 0) return alert('Brak mąki — dodaj mąkę z ilością > 0.');
+    setForm(prev => ({
+      ...prev,
+      flours: prev.flours.map(f => {
+        const percent = parseFloat(((Number(f.kg || 0) * 1000 / totalG) * 100).toFixed(2));
+        return { ...f, percent, kg: parseFloat((percent / 100).toFixed(4)), unit: 'kg' };
+      }),
+    }));
+    setPercentsCalculated(true);
   };
 
   // ── Ingredient handlers ──
@@ -169,23 +159,13 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
     if (!form.description.trim()) missing.push('opis');
     if (!form.flours.some(f => Number(f.kg) > 0)) missing.push('co najmniej jedna mąka z ilością > 0');
     if (missing.length) return alert('Uzupełnij: ' + missing.join(', ') + '.');
-
-    const total = totalFlourKg;
-    const floursWithPercent = form.flours.map(f => ({
+    if (!percentsCalculated && Math.abs(totalFlourKg - 1) > 0.001)
+      return alert('Kliknij "Przelicz %" przed zapisem, aby przeliczyć procenty piekarskie.');
+    const floursToSave = form.flours.map(f => ({
       name: f.name,
-      kg: Number(f.kg),               // zawsze w kg
-      percent: total > 0 ? parseFloat(((Number(f.kg) / total) * 100).toFixed(2)) : 0,
+      percent: f.percent ?? parseFloat(flourPercents[form.flours.indexOf(f)].toFixed(2)),
     }));
-
-    // Weryfikacja w konsoli (Problem 4)
-    console.group('[Zapis receptury] Weryfikacja przeliczenia:');
-    floursWithPercent.forEach(f => {
-      console.log(`  ${f.name}: ${f.kg} kg = ${f.percent}%`);
-    });
-    console.log(`  Suma mąki: ${total.toFixed(3)} kg`);
-    console.groupEnd();
-
-    onSave({ ...form, flours: floursWithPercent, imageUrl: form.imageUrl || '/default-bread.jpg' });
+    onSave({ ...form, flours: floursToSave, imageUrl: form.imageUrl || '/default-bread.jpg' });
   };
 
   const inputCls = 'w-full p-4 border-2 border-[var(--border)] rounded-2xl font-bold bg-[var(--bg)] text-[var(--text)] placeholder-[var(--text-dim)] outline-none';
@@ -289,8 +269,8 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                 <div className="flex gap-2">
                   <button
                     onClick={recalcPercents}
-                    className="flex items-center gap-1 px-3 py-2 bg-[var(--bg-input)] text-[var(--text)] rounded-lg shadow text-[10px] font-black"
-                    title="Oblicza udział % każdej mąki i loguje do konsoli"
+                    className={`flex items-center gap-1 px-3 py-2 rounded-lg shadow text-[10px] font-black transition-colors ${percentsCalculated ? 'bg-green-600 text-white' : 'bg-amber-500 text-white'}`}
+                    title="Normalizuje mąki do bazy 1 kg i zapisuje procenty piekarskie"
                   >
                     Przelicz %
                   </button>
@@ -345,29 +325,6 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                 </div>
               ))}
 
-              {/* Łączna ilość mąki + suwak */}
-              <div className="mt-3 p-4 bg-[var(--bg)] rounded-2xl border border-[var(--border)]">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-[10px] font-black uppercase text-[var(--text-dim)] flex-1">Łączna ilość mąki</span>
-                  <div className="relative">
-                    <input
-                      type="number" min="0" max="10" step="0.1"
-                      className="w-24 text-center font-black pr-7 p-2 border-2 border-[var(--border)] rounded-xl bg-[var(--bg)] text-[var(--text)] outline-none text-sm"
-                      style={{ color: ACCENT }}
-                      value={parseFloat(totalFlourKg.toFixed(2)) || ''}
-                      onChange={e => setTotalFlour(e.target.value)}
-                    />
-                    <span className="absolute right-2 top-2.5 text-[8px] font-black text-[var(--text-dim)]">kg</span>
-                  </div>
-                </div>
-                <input
-                  type="range" min="0" max="10" step="0.1"
-                  className="w-full"
-                  style={{ accentColor: ACCENT }}
-                  value={Math.min(10, totalFlourKg)}
-                  onChange={e => setTotalFlour(e.target.value)}
-                />
-              </div>
             </div>
 
             {/* ── SEKCJA 3 — Składniki ── */}
