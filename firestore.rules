@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'krzysiekgodek@gmail.com';
+    }
+
+    function planLimit(plan) {
+      return plan == 'vip'  ? 100 :
+             plan == 'maxi' ? 30  :
+             plan == 'max'  ? 30  :
+             plan == 'midi' ? 20  :
+             plan == 'mini' ? 10  : 2;
+    }
+
+    function canCreateRecipe() {
+      let userData = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return userData.get('recipeCount', 0) < planLimit(userData.get('plan', 'free'));
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write, update, delete: if isAdmin();
+    }
+
+    match /piekarz_recipes/{recipeId} {
+      allow read: if true;
+      allow create: if request.auth != null && (isAdmin() || canCreateRecipe());
+      allow update, delete: if request.auth != null && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    match /piekarz_categories/{catId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /piekarz_sourdough/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{docId}   { allow read: if true; allow write: if isAdmin(); }
+    match /ads/{adId}         { allow read: if true; allow write: if isAdmin(); }
+  }
+}

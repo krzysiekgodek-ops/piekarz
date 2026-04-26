@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(robocopy \"D:\\\\portal_ebra\\\\masarz-claude\\\\node_modules\" \"D:\\\\portal_ebra\\\\piekarz-claude\\\\node_modules\" /E /NFL /NDL /NJH /NJS /NC /NS /NP /XD \".bin\" /COPYALL 2>&1 | Select-Object -Last 5; Write-Output \"exit: $LastExitCode\")",
+      "Bash(./node_modules/.bin/vite build *)"
+    ]
+  }
+}

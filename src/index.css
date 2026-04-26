@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[data-theme="dark"] {
+  --bg: #0f0e0c;
+  --bg-card: #161410;
+  --bg-input: #1c1a16;
+  --text: #f0ebe0;
+  --text-dim: #a09a8e;
+  --border: rgba(255,255,255,0.07);
+  --bg-overlay: rgba(15, 14, 12, 0.95);
+  --bg-overlay-soft: rgba(15, 14, 12, 0.90);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg: #ddd8ce;
+  --bg-card: #e8e3d8;
+  --bg-input: #d8d3c8;
+  --text: #1a1209;
+  --text-dim: #5a5550;
+  --border: rgba(0,0,0,0.15);
+  --bg-overlay: rgba(221, 216, 206, 0.95);
+  --bg-overlay-soft: rgba(221, 216, 206, 0.90);
+  color-scheme: light;
+}
+
+html {
+  background: var(--bg);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+@keyframes ebra-gear-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

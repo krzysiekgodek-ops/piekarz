@@ -1,0 +1,43 @@
+name: Deploy piekarz to MyDevil
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_STRIPE_LINK_MINI: ${{ secrets.VITE_STRIPE_LINK_MINI }}
+          VITE_STRIPE_LINK_MIDI: ${{ secrets.VITE_STRIPE_LINK_MIDI }}
+          VITE_STRIPE_LINK_MAXI: ${{ secrets.VITE_STRIPE_LINK_MAXI }}
+          VITE_STRIPE_LINK_VIP: ${{ secrets.VITE_STRIPE_LINK_VIP }}
+
+      - name: Deploy via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "dist/*"
+          target: "domains/piekarz.ebra.pl/public_html/"
+          strip_components: 1
