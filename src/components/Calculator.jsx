@@ -84,16 +84,16 @@ const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, on
           <input
             type="number"
             min="0.1"
-            max="100"
+            max="10"
             step="0.1"
             value={totalTarget}
-            onChange={e => setTotalTarget(Math.min(100, Math.max(0.1, Number(e.target.value))))}
+            onChange={e => setTotalTarget(Math.min(10, Math.max(0.1, Number(e.target.value))))}
             className="text-7xl font-black w-full text-center bg-transparent outline-none text-[var(--text)] tabular-nums"
           />
           <input
             type="range"
             min="0.1"
-            max="20"
+            max="10"
             step="0.1"
             value={totalTarget}
             onChange={e => setTotalTarget(Number(e.target.value))}
@@ -102,7 +102,7 @@ const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, on
           />
           <div className="flex justify-between text-[10px] font-bold text-[var(--text-dim)] mt-1.5">
             <span>0.1 kg</span>
-            <span>20 kg</span>
+            <span>10 kg</span>
           </div>
         </div>
 
