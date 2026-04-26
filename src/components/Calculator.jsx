@@ -11,17 +11,28 @@ const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, on
   const calculations = useMemo(() => {
     if (!recipe) return { flours: [], ingredients: [], totalFlourPercent: 0 };
 
+    // Baza obliczeniowa: łączna ilość mąki podana przez użytkownika
+    // Wzór: składnik_g = (procent / 100) * suma_mąki_g
+    const totalFlourG = flourKg * 1000;
+
     const flours = (recipe.flours || []).map(f => ({
       ...f,
-      grams: Math.round((Number(f.percent ?? 0) / 100) * flourKg * 1000),
+      grams: Math.round((Number(f.percent ?? 0) / 100) * totalFlourG),
     }));
 
     const totalFlourPercent = flours.reduce((acc, f) => acc + Number(f.percent ?? 0), 0);
 
     const ingredients = (recipe.ingredients || []).map(ing => ({
       ...ing,
-      grams: Math.round((Number(ing.percent ?? 0) / 100) * flourKg * 1000),
+      grams: Math.round((Number(ing.percent ?? 0) / 100) * totalFlourG),
     }));
+
+    // Weryfikacja w konsoli (Problem 4)
+    console.group(`[Kalkulator] ${recipe.name} — mąka: ${flourKg} kg (${totalFlourG} g)`);
+    ingredients.forEach(ing => {
+      console.log(`  ${ing.name}: ${ing.percent}% × ${totalFlourG}g = ${ing.grams} ${ing.unit || 'g'}`);
+    });
+    console.groupEnd();
 
     return { flours, ingredients, totalFlourPercent };
   }, [recipe, flourKg]);

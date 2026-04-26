@@ -10,7 +10,7 @@ const EMPTY_RECIPE = {
   description: '',
   videoUrl: '',
   imageUrl: '',
-  flours: [{ name: 'Mąka pszenna T550', kg: 1 }],
+  flours: [{ name: 'Mąka pszenna T550', kg: 1, unit: 'kg' }],
   ingredients: [],
   stages: [],
   waterTemp: null,
@@ -21,7 +21,14 @@ const initFlours = (flours) => {
   return flours.map(f => ({
     name: f.name || '',
     kg: f.kg != null ? Number(f.kg) : (f.percent != null ? Number(f.percent) / 100 : 1),
+    unit: f.unit || 'kg',
   }));
+};
+
+// Zwraca wartość do wyświetlenia w inpucie zależnie od wybranej jednostki
+const flourDisplayValue = (f) => {
+  const kg = Number(f.kg || 0);
+  return f.unit === 'g' ? (kg * 1000 || '') : (kg || '');
 };
 
 const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeCount = 0, recipeLimit = Infinity }) => {
@@ -45,22 +52,32 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
 
   const [isUploading, setIsUploading] = useState(false);
 
+  // Suma mąki zawsze w kg (źródło prawdy)
   const totalFlourKg = useMemo(
     () => form.flours.reduce((sum, f) => sum + Number(f.kg || 0), 0),
     [form.flours]
   );
 
+  // Procenty udziału każdej mąki w sumie
   const flourPercents = useMemo(() => {
     if (totalFlourKg <= 0) return form.flours.map(() => 0);
     return form.flours.map(f => (Number(f.kg || 0) / totalFlourKg) * 100);
   }, [form.flours, totalFlourKg]);
 
+  // ── Flour handlers ──
+
   const addFlour = () =>
-    setForm(prev => ({ ...prev, flours: [{ name: '', kg: 0 }, ...prev.flours] }));
+    setForm(prev => ({ ...prev, flours: [{ name: '', kg: 0, unit: 'kg' }, ...prev.flours] }));
 
   const updateFlour = (i, field, value) => {
     const list = [...form.flours];
-    list[i] = { ...list[i], [field]: field === 'kg' ? (value === '' ? 0 : Number(value)) : value };
+    if (field === 'amount') {
+      // Konwersja z wybranej jednostki na kg (zawsze zapisujemy kg)
+      const raw = value === '' ? 0 : Number(value);
+      list[i] = { ...list[i], kg: list[i].unit === 'g' ? raw / 1000 : raw };
+    } else {
+      list[i] = { ...list[i], [field]: value };
+    }
     setForm(prev => ({ ...prev, flours: list }));
   };
 
@@ -69,6 +86,7 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
     setForm(prev => ({ ...prev, flours: prev.flours.filter((_, idx) => idx !== i) }));
   };
 
+  // Suwak/input łącznej ilości mąki — skaluje proporcjonalnie
   const setTotalFlour = (newTotal) => {
     const total = Math.max(0, Math.min(10, Number(newTotal) || 0));
     if (totalFlourKg <= 0) {
@@ -83,6 +101,21 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
     }
   };
 
+  // Przelicz % — oblicza i loguje udziały do konsoli (Problem 2 + 4)
+  const recalcPercents = () => {
+    const total = totalFlourKg;
+    console.group('[Receptura] Przeliczenie mąki:');
+    form.flours.forEach((f, i) => {
+      const pct = total > 0 ? ((Number(f.kg) / total) * 100).toFixed(2) : '0.00';
+      const display = f.unit === 'g' ? `${(f.kg * 1000).toFixed(0)}g` : `${f.kg}kg`;
+      console.log(`  ${f.name || 'Mąka ' + (i + 1)}: ${display} = ${pct}%`);
+    });
+    console.log(`  Suma mąki: ${total.toFixed(3)} kg`);
+    console.groupEnd();
+  };
+
+  // ── Ingredient handlers ──
+
   const addIngredient = () =>
     setForm(prev => ({ ...prev, ingredients: [{ name: '', percent: 0, unit: 'g' }, ...prev.ingredients] }));
 
@@ -94,6 +127,8 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
 
   const removeIngredient = (i) =>
     setForm(prev => ({ ...prev, ingredients: prev.ingredients.filter((_, idx) => idx !== i) }));
+
+  // ── Stage handlers ──
 
   const addStage = () =>
     setForm(prev => ({ ...prev, stages: [{ name: '', duration: null, durationUnit: 'min', temp: null }, ...prev.stages] }));
@@ -107,6 +142,8 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
 
   const removeStage = (i) =>
     setForm(prev => ({ ...prev, stages: prev.stages.filter((_, idx) => idx !== i) }));
+
+  // ── Upload zdjęcia ──
 
   const handleUpload = async (e) => {
     const file = e.target.files[0]; if (!file) return;
@@ -122,6 +159,8 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
     } catch { alert('Błąd uploadu.'); } finally { setIsUploading(false); }
   };
 
+  // ── Zapis ──
+
   const handleSave = () => {
     if (overLimit) return;
     const missing = [];
@@ -134,9 +173,17 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
     const total = totalFlourKg;
     const floursWithPercent = form.flours.map(f => ({
       name: f.name,
-      kg: Number(f.kg),
+      kg: Number(f.kg),               // zawsze w kg
       percent: total > 0 ? parseFloat(((Number(f.kg) / total) * 100).toFixed(2)) : 0,
     }));
+
+    // Weryfikacja w konsoli (Problem 4)
+    console.group('[Zapis receptury] Weryfikacja przeliczenia:');
+    floursWithPercent.forEach(f => {
+      console.log(`  ${f.name}: ${f.kg} kg = ${f.percent}%`);
+    });
+    console.log(`  Suma mąki: ${total.toFixed(3)} kg`);
+    console.groupEnd();
 
     onSave({ ...form, flours: floursWithPercent, imageUrl: form.imageUrl || '/default-bread.jpg' });
   };
@@ -241,6 +288,13 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                 </div>
                 <div className="flex gap-2">
                   <button
+                    onClick={recalcPercents}
+                    className="flex items-center gap-1 px-3 py-2 bg-[var(--bg-input)] text-[var(--text)] rounded-lg shadow text-[10px] font-black"
+                    title="Oblicza udział % każdej mąki i loguje do konsoli"
+                  >
+                    Przelicz %
+                  </button>
+                  <button
                     onClick={addFlour}
                     className="flex items-center gap-1 px-3 py-2 text-white rounded-lg shadow text-[10px] font-black"
                     style={{ background: ACCENT }}
@@ -258,17 +312,25 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                     value={f.name}
                     onChange={e => updateFlour(i, 'name', e.target.value)}
                   />
-                  <div className="relative">
-                    <input
-                      type="number" min="0" max="10" step="0.01"
-                      className={`w-24 text-center font-black pr-7 ${smInputCls}`}
-                      value={f.kg || ''}
-                      onChange={e => updateFlour(i, 'kg', e.target.value)}
-                    />
-                    <span className="absolute right-2 top-3.5 text-[8px] font-black text-[var(--text-dim)]">kg</span>
-                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    step={f.unit === 'g' ? 1 : 0.01}
+                    max={f.unit === 'g' ? 10000 : 10}
+                    className={`w-24 text-center font-black ${smInputCls}`}
+                    value={flourDisplayValue(f)}
+                    onChange={e => updateFlour(i, 'amount', e.target.value)}
+                  />
+                  <select
+                    className={`w-16 text-center text-xs ${smInputCls}`}
+                    value={f.unit || 'kg'}
+                    onChange={e => updateFlour(i, 'unit', e.target.value)}
+                  >
+                    <option value="g">g</option>
+                    <option value="kg">kg</option>
+                  </select>
                   <span
-                    className="w-16 text-center text-[10px] font-black rounded-xl py-3 shrink-0"
+                    className="w-14 text-center text-[10px] font-black rounded-xl py-3 shrink-0"
                     style={{ color: ACCENT, background: 'var(--bg)' }}
                   >
                     {flourPercents[i] != null ? flourPercents[i].toFixed(1) : '0.0'}%
