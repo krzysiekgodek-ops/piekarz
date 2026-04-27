@@ -339,7 +339,7 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                 </button>
               </div>
               <p className="text-[9px] text-[var(--text-dim)] mb-3 px-1">
-                Podaj <strong>% wagowy od mąki</strong> — np. woda 67 = 670 g przy 1 kg mąki
+                Podaj <strong>% wagowy od mąki</strong> — np. sól 2,5 = 25 g przy 1 kg mąki
               </p>
               {form.ingredients.length === 0 && (
                 <p className="text-[10px] text-[var(--text-dim)] italic px-2">Brak składników — kliknij + aby dodać</p>
@@ -352,13 +352,18 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                     value={ing.name}
                     onChange={e => updateIngredient(i, 'name', e.target.value)}
                   />
-                  <input
-                    type="number" min="0" step="0.1"
-                    placeholder="% mąki"
-                    className={`w-20 text-center font-black ${smInputCls}`}
-                    value={ing.percent ?? ''}
-                    onChange={e => updateIngredient(i, 'percent', e.target.value)}
-                  />
+                  <div className="flex flex-col items-center shrink-0">
+                    <input
+                      type="number" min="0" step="0.1"
+                      placeholder="%"
+                      className={`w-20 text-center font-black ${smInputCls}`}
+                      value={ing.percent ?? ''}
+                      onChange={e => updateIngredient(i, 'percent', e.target.value)}
+                    />
+                    <span className="text-[9px] font-black mt-0.5 tabular-nums" style={{ color: ACCENT }}>
+                      = {parseFloat(((Number(ing.percent || 0) / 100) * 1000).toFixed(1))} g/kg
+                    </span>
+                  </div>
                   <select
                     className={`w-16 text-center text-xs ${smInputCls}`}
                     value={ing.unit || 'g'}
