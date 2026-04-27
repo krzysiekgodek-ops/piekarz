@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'Piekarski Master',
         short_name: 'Piekarz',
         description: 'Rzemieślnicze receptury piekarskie – kalkulator procentów piekarskich',
-        theme_color: '#0f0e0c',
+        theme_color: '#c8860a',
         background_color: '#0f0e0c',
         display: 'standalone',
         start_url: '/',

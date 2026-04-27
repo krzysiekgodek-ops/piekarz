@@ -133,7 +133,12 @@ const App = () => {
         }
       } else {
         setUserProfile(null);
-        setActiveTab('home');
+        if (hashTabRef.current) {
+          setActiveTab(hashTabRef.current);
+          hashTabRef.current = null;
+        } else {
+          setActiveTab('home');
+        }
       }
     });
 
