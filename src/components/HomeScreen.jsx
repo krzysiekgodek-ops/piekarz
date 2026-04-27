@@ -20,7 +20,7 @@ const KALKULATORY = [
     description: 'Receptury mięsne i wędliniarskie',
     active: true,
     type: 'external',
-    url: 'https://masarz.ebra.pl',
+    url: 'https://masarz.ebra.pl/#receptury',
     banner: '/masarz-banner.jpg',
     logo: '/logo_masarz.svg',
     buttonColor: '#DC2626',
@@ -79,7 +79,7 @@ const HomeScreen = ({ setActiveTab }) => {
       return;
     }
     if (calc.type === 'external') {
-      window.open(calc.url, '_blank', 'noopener,noreferrer');
+      window.open(calc.url, '_self');
     } else {
       setActiveTab('recipes');
     }
@@ -98,10 +98,6 @@ const HomeScreen = ({ setActiveTab }) => {
           Wkrótce dostępne
         </div>
       )}
-
-      <div className="flex justify-center mb-5">
-        <img src="/logo_piekarz.png" alt="Piekarski Master" className="h-16 w-auto drop-shadow" />
-      </div>
 
       <h2 className="text-3xl font-black uppercase italic tracking-tighter text-[var(--text)] leading-none mb-2">Kalkulatory</h2>
       <p className="text-sm text-[var(--text-dim)] font-medium mb-6">Wybierz kalkulator, aby rozpocząć pracę</p>

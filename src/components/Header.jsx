@@ -2,7 +2,7 @@ import React from 'react';
 import { LayoutDashboard, Cog } from 'lucide-react';
 
 const Header = ({ user, userProfile, activeTab, setActiveTab, setIsAuthModalOpen, theme, toggleTheme }) => (
-  <header className="no-print bg-[var(--bg-card)] border-b border-[var(--border)] px-4 py-3 flex justify-between items-center sticky top-0 z-40">
+  <header className="no-print bg-[var(--bg-card)] border-b border-[var(--border)] px-4 py-3 flex justify-between items-center sticky top-0 z-40 relative">
     <a
       href="https://www.ebra.pl"
       className="flex items-center gap-2 cursor-pointer select-none no-underline"
@@ -23,6 +23,12 @@ const Header = ({ user, userProfile, activeTab, setActiveTab, setIsAuthModalOpen
         </span>
       </div>
     </a>
+
+    <img
+      src="/logo_piekarz.png"
+      alt="Piekarski Master"
+      style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', width: 40, height: 40, objectFit: 'contain' }}
+    />
 
     <div className="flex items-center gap-2">
       <button

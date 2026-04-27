@@ -1,8 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { X, Plus, Trash2, Save, Upload } from 'lucide-react';
 import { MYDEVIL_URL } from '../firebase';
+import RichTextEditor from './RichTextEditor';
 
 const ACCENT = '#c8860a';
+
+const INGREDIENT_SUGGESTIONS = [
+  'Woda', 'Zakwas', 'Drożdże suche', 'Drożdże świeże',
+  'Sól niejodowana', 'Cukier', 'Olej', 'Masło', 'Jajka',
+  'Mleko', 'Miód', 'Siemię lniane', 'Słonecznik',
+  'Dynia', 'Sezam', 'Mak',
+];
 
 const EMPTY_RECIPE = {
   name: '',
@@ -250,11 +258,9 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
 
             <div className="space-y-1">
               <p className="text-[10px] font-black text-[var(--text-dim)] uppercase ml-4">Opis *</p>
-              <textarea
-                placeholder="Opisz recepturę..."
-                className={`${inputCls} h-32`}
+              <RichTextEditor
                 value={form.description}
-                onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
+                onChange={v => setForm(prev => ({ ...prev, description: v }))}
               />
             </div>
 
@@ -382,12 +388,22 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
               )}
               {form.ingredients.map((ing, i) => (
                 <div key={i} className="flex gap-2 mb-2 items-center">
-                  <input
-                    placeholder="Składnik"
-                    className={`flex-1 ${smInputCls}`}
-                    value={ing.name}
-                    onChange={e => updateIngredient(i, 'name', e.target.value)}
-                  />
+                  <div className="flex-1 flex flex-col gap-1">
+                    <select
+                      className={`w-full text-xs ${smInputCls} py-2`}
+                      value=""
+                      onChange={e => { if (e.target.value) updateIngredient(i, 'name', e.target.value); }}
+                    >
+                      <option value="">— wybierz lub wpisz własny —</option>
+                      {INGREDIENT_SUGGESTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    <input
+                      placeholder="Składnik"
+                      className={`w-full ${smInputCls}`}
+                      value={ing.name}
+                      onChange={e => updateIngredient(i, 'name', e.target.value)}
+                    />
+                  </div>
                   <div className="flex flex-col items-center shrink-0">
                     <input
                       type="number" min="0" step={amountStep(ing.unit || 'g')}
