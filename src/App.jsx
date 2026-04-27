@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, doc, setDoc, getDoc, getCountFromServer, onSnapshot, query, where, addDoc, serverTimestamp, updateDoc, deleteDoc, increment } from 'firebase/firestore';
 import { auth, db, SUPER_ROOT } from './firebase';
@@ -64,6 +64,8 @@ const App = () => {
   const [ads, setAds]                 = useState([]);
   const [plans, setPlans]             = useState(null);
 
+  const hashTabRef = useRef(null);
+
   const [activeTab, setActiveTab]     = useState('home');
   const [prevTab, setPrevTab]         = useState('recipes');
   const [selectedKey, setSelectedKey] = useState('');
@@ -72,6 +74,15 @@ const App = () => {
   const [isAuthModalOpen, setIsAuthModalOpen]     = useState(false);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
   const [recipeToEdit, setRecipeToEdit]           = useState(null);
+
+  // Odczyt hash przy starcie — zapisuje do ref, żeby nie zostać nadpisany przez onAuthStateChanged
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === '#receptury') hashTabRef.current = 'recipes';
+    else if (hash === '#moje') hashTabRef.current = 'my-recipes';
+    else if (hash === '#konto') hashTabRef.current = 'account';
+    if (hash) window.history.replaceState(null, '', window.location.pathname);
+  }, []);
 
   // Firebase: auth + pricing
   useEffect(() => {
@@ -116,6 +127,10 @@ const App = () => {
         profileData.isTrialActive = Math.floor((new Date() - new Date(profileData.createdAt)) / 86400000) <= 21;
         if (!profileData.favorites) profileData.favorites = [];
         setUserProfile(profileData);
+        if (hashTabRef.current) {
+          setActiveTab(hashTabRef.current);
+          hashTabRef.current = null;
+        }
       } else {
         setUserProfile(null);
         setActiveTab('home');
