@@ -16,6 +16,28 @@ const EMPTY_RECIPE = {
   waterTemp: null,
 };
 
+// Konwersja ilości (na 1 kg mąki) → procent piekarskie
+const amountToPercent = (amount, unit) => {
+  const val = Number(amount || 0);
+  if (unit === 'g' || unit === 'ml') return parseFloat((val / 10).toFixed(4));
+  if (unit === 'kg' || unit === 'l') return parseFloat((val * 100).toFixed(4));
+  return val; // szt, %
+};
+
+// Procent piekarskie → ilość w danej jednostce (do wyświetlenia)
+const percentToAmount = (percent, unit) => {
+  const val = Number(percent || 0);
+  if (unit === 'g' || unit === 'ml') return parseFloat((val * 10).toFixed(2));
+  if (unit === 'kg' || unit === 'l') return parseFloat((val / 100).toFixed(4));
+  return val; // szt, %
+};
+
+const amountStep = (unit) => {
+  if (unit === 'g' || unit === 'ml' || unit === 'szt') return 1;
+  if (unit === 'kg' || unit === 'l') return 0.001;
+  return 0.1;
+};
+
 const initFlours = (flours) => {
   if (!Array.isArray(flours) || flours.length === 0) return EMPTY_RECIPE.flours;
   return flours.map(f => ({
@@ -42,7 +64,10 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
       ...initialRecipe,
       flours: initFlours(initialRecipe.flours),
       ingredients: Array.isArray(initialRecipe.ingredients)
-        ? initialRecipe.ingredients.map(ing => ({ ...ing }))
+        ? initialRecipe.ingredients.map(ing => ({
+            ...ing,
+            amount: percentToAmount(ing.percent ?? 0, ing.unit || 'g'),
+          }))
         : [],
       stages: Array.isArray(initialRecipe.stages)
         ? initialRecipe.stages.map(s => ({ ...s }))
@@ -107,11 +132,21 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
   // ── Ingredient handlers ──
 
   const addIngredient = () =>
-    setForm(prev => ({ ...prev, ingredients: [{ name: '', percent: 0, unit: 'g' }, ...prev.ingredients] }));
+    setForm(prev => ({ ...prev, ingredients: [{ name: '', amount: 0, unit: 'g', percent: 0 }, ...prev.ingredients] }));
 
   const updateIngredient = (i, field, value) => {
     const list = [...form.ingredients];
-    list[i] = { ...list[i], [field]: field === 'percent' ? (value === '' ? 0 : Number(value)) : value };
+    const ing = { ...list[i] };
+    if (field === 'amount') {
+      ing.amount = value === '' ? '' : Number(value);
+      ing.percent = amountToPercent(ing.amount, ing.unit || 'g');
+    } else if (field === 'unit') {
+      ing.unit = value;
+      ing.amount = percentToAmount(ing.percent ?? 0, value);
+    } else {
+      ing[field] = value;
+    }
+    list[i] = ing;
     setForm(prev => ({ ...prev, ingredients: list }));
   };
 
@@ -165,7 +200,8 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
       name: f.name,
       percent: f.percent ?? parseFloat(flourPercents[form.flours.indexOf(f)].toFixed(2)),
     }));
-    onSave({ ...form, flours: floursToSave, imageUrl: form.imageUrl || '/default-bread.jpg' });
+    const ingredientsToSave = form.ingredients.map(({ amount, ...rest }) => rest);
+    onSave({ ...form, flours: floursToSave, ingredients: ingredientsToSave, imageUrl: form.imageUrl || '/default-bread.jpg' });
   };
 
   const inputCls = 'w-full p-4 border-2 border-[var(--border)] rounded-2xl font-bold bg-[var(--bg)] text-[var(--text)] placeholder-[var(--text-dim)] outline-none';
@@ -339,7 +375,7 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                 </button>
               </div>
               <p className="text-[9px] text-[var(--text-dim)] mb-3 px-1">
-                Podaj <strong>% wagowy od mąki</strong> — np. sól 2,5 = 25 g przy 1 kg mąki
+                Podaj ilość <strong>na 1 kg mąki</strong> — np. sól 25 g, woda 670 ml, drożdże 30 g
               </p>
               {form.ingredients.length === 0 && (
                 <p className="text-[10px] text-[var(--text-dim)] italic px-2">Brak składników — kliknij + aby dodać</p>
@@ -354,14 +390,14 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                   />
                   <div className="flex flex-col items-center shrink-0">
                     <input
-                      type="number" min="0" step="0.1"
-                      placeholder="%"
+                      type="number" min="0" step={amountStep(ing.unit || 'g')}
+                      placeholder="Ilość"
                       className={`w-20 text-center font-black ${smInputCls}`}
-                      value={ing.percent ?? ''}
-                      onChange={e => updateIngredient(i, 'percent', e.target.value)}
+                      value={ing.amount || ''}
+                      onChange={e => updateIngredient(i, 'amount', e.target.value)}
                     />
                     <span className="text-[9px] font-black mt-0.5 tabular-nums" style={{ color: ACCENT }}>
-                      = {parseFloat(((Number(ing.percent || 0) / 100) * 1000).toFixed(1))} g/kg
+                      = {parseFloat((Number(ing.percent || 0)).toFixed(2))}% mąki
                     </span>
                   </div>
                   <select
