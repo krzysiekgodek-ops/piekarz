@@ -228,7 +228,7 @@ const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, on
               <h5 className="flex items-center gap-2 text-[10px] font-black uppercase text-[var(--text-dim)] mb-4 tracking-widest">
                 <BookOpen size={13} /> Opis
               </h5>
-              <p className="text-sm text-[var(--text)] leading-relaxed font-medium">{recipe.description}</p>
+              <p className="text-sm text-[var(--text)] leading-relaxed font-medium whitespace-pre-wrap">{recipe.description}</p>
             </div>
           </div>
         )}
