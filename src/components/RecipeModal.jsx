@@ -164,7 +164,7 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
   // ── Stage handlers ──
 
   const addStage = () =>
-    setForm(prev => ({ ...prev, stages: [{ name: '', duration: null, durationUnit: 'min', temp: null }, ...prev.stages] }));
+    setForm(prev => ({ ...prev, stages: [...prev.stages, { name: '', duration: null, durationUnit: 'min', temp: null }] }));
 
   const updateStage = (i, field, value) => {
     const list = [...form.stages];
