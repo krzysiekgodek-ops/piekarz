@@ -50,7 +50,7 @@ const initFlours = (flours) => {
   if (!Array.isArray(flours) || flours.length === 0) return EMPTY_RECIPE.flours;
   return flours.map(f => ({
     name: f.name || '',
-    kg: f.kg != null ? Number(f.kg) : (f.percent != null ? Number(f.percent) / 100 : 1),
+    kg: (f.kg != null && Number(f.kg) > 0) ? Number(f.kg) : (f.percent != null ? Number(f.percent) / 100 : 1),
     unit: f.unit || 'kg',
   }));
 };
@@ -204,9 +204,10 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
     if (missing.length) return alert('Uzupełnij: ' + missing.join(', ') + '.');
     if (!percentsCalculated && Math.abs(totalFlourKg - 1) > 0.001)
       return alert('Kliknij "Przelicz %" przed zapisem, aby przeliczyć procenty piekarskie.');
-    const floursToSave = form.flours.map(f => ({
+    const floursToSave = form.flours.map((f, idx) => ({
       name: f.name,
-      percent: f.percent ?? parseFloat(flourPercents[form.flours.indexOf(f)].toFixed(2)),
+      percent: f.percent ?? parseFloat(flourPercents[idx].toFixed(2)),
+      kg: Number(f.kg ?? 0),
     }));
     const ingredientsToSave = form.ingredients.map(({ amount, ...rest }) => rest);
     onSave({ ...form, flours: floursToSave, ingredients: ingredientsToSave, imageUrl: form.imageUrl || '/default-bread.jpg' });
