@@ -90,7 +90,7 @@ const RecipeList = ({
                   </div>
                   <div className="p-2.5">
                     {r.ownerId === 'ADMIN' && (
-                      <span className="text-[8px] font-black bg-amber-900/20 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded-full uppercase inline-block mb-1">
+                      <span className="text-[8px] font-black bg-amber-900/20 text-blue-900 dark:text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded-full uppercase inline-block mb-1">
                         ⭐ Wzorzec
                       </span>
                     )}
