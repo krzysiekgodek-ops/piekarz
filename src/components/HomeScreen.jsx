@@ -10,6 +10,7 @@ const CALCULATORS = [
     description: 'Kalkulator procentów piekarskich',
     banner: '/piekarz_baner.png',
     logo: '/piekarz_logo.png',
+    tab: 'recipes',
   },
   {
     id: 'masarski',
@@ -17,15 +18,15 @@ const CALCULATORS = [
     description: 'Kalkulator receptur wędlin i mięs',
     banner: '/masarz_banner.jpg',
     logo: '/masarz_logo.png',
-    url: 'https://www.masarz.ebra.pl',
+    url: 'https://www.masarz.ebra.pl#receptury',
   },
   {
     id: 'nalewki',
-    name: 'Nalewkarz Master',
+    name: 'Mistrz Nalewek',
     description: 'Receptury nalewek i nastawów',
     banner: '/nalewki_baner.png',
     logo: '/nalewki_logo.jpg',
-    url: 'https://www.nalewki.ebra.pl',
+    url: 'https://www.nalewki.ebra.pl#receptury',
   },
 ];
 
@@ -48,7 +49,7 @@ const HomeScreen = ({ setActiveTab }) => {
     if (calc.url) {
       window.open(calc.url, '_blank');
     } else {
-      setActiveTab('calculator');
+      setActiveTab(calc.tab || 'calculator');
     }
   };
 
@@ -73,21 +74,28 @@ const HomeScreen = ({ setActiveTab }) => {
               style={{ border: '1px solid var(--border)' }}
               onClick={() => handleCardClick(calc)}
             >
-              <div className="relative h-36 overflow-hidden">
+              <div className="relative h-48 overflow-hidden">
                 <img
                   src={calc.banner}
                   alt={calc.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                {/* Logo – góra, 1/4 od lewej krawędzi */}
+                <img
+                  src={calc.logo}
+                  alt=""
+                  className="absolute top-3 h-14 w-14 object-contain drop-shadow-lg"
+                  style={{ left: '25%', transform: 'translateX(-50%)' }}
+                />
               </div>
-              <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center gap-3">
-                <img src={calc.logo} alt="" className="h-10 w-10 object-contain" />
+              {/* Napis – 40px odstępu od dołu logo (logo kończy się na 68px → tekst od 108px) */}
+              <div className="absolute left-0 right-0 px-4 flex items-start justify-between" style={{ top: '108px' }}>
                 <div>
-                  <div className="text-white font-bold text-sm">{calc.name}</div>
-                  <div className="text-white/70 text-xs">{calc.description}</div>
+                  <div className="text-white font-extrabold text-2xl leading-tight drop-shadow">{calc.name}</div>
+                  <div className="text-white/80 text-base mt-1">{calc.description}</div>
                 </div>
-                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium shrink-0 ml-3">
                   Aktywny
                 </span>
               </div>
