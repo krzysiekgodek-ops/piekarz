@@ -1,1 +1,71 @@
-node_modules
+# ── Zależności ────────────────────────────────────────────────────
+node_modules/
+scripts/node_modules/
+
+# ── Build output ──────────────────────────────────────────────────
+# CI/CD (GitHub Actions) buduje dist/ sam — nie trzymamy w repo
+dist/
+dist-ssr/
+
+# ── Środowisko i sekrety ──────────────────────────────────────────
+# Lokalne zmienne środowiskowe (Stripe keys itp.)
+.env.local
+.env.*.local
+
+# Firebase Admin SDK — klucz serwisowy (NIGDY nie commituj!)
+scripts/serviceAccountKey.json
+serviceAccountKey.json
+*serviceAccount*.json
+
+# ── Firebase CLI ──────────────────────────────────────────────────
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+
+# ── Logi ──────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── IDE i edytory ─────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ── System operacyjny ─────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── Vite ──────────────────────────────────────────────────────────
+*.local
+claude.md
+prompt.md
+readme_piekarz.md
+
+
+# ── Testy i cache ─────────────────────────────────────────────────
+coverage/
+.cache/
+.parcel-cache/
+.eslintcache
+
+#  - foldery -----------------------------
+secret/
+przepisy/
+

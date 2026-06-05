@@ -1,0 +1,24 @@
+{
+  "name": "ebra-piekarz-scripts",
+  "version": "1.0.0",
+  "description": "Skrypty importu przepisów do Firestore — EBRA piekarz.ebra.pl",
+  "type": "commonjs",
+  "scripts": {
+    "validate":   "node validate.js",
+    "dry:p1":     "node import_partia.js --dry-run partia_01_polska",
+    "import:p1":  "node import_partia.js partia_01_polska",
+    "import:p2":  "node import_partia.js partia_02_europa_zachodnia",
+    "import:p3":  "node import_partia.js partia_03_europa_wschodnia",
+    "import:p4":  "node import_partia.js partia_04_srodziemnomorze",
+    "import:p5":  "node import_partia.js partia_05_ameryki",
+    "import:p6":  "node import_partia.js partia_06_azja",
+    "import:p7":  "node import_partia.js partia_07_afryka",
+    "import:p8":  "node import_partia.js partia_08_bulki_i_drozdzowe",
+    "import:p9":  "node import_partia.js partia_09_zdrowe_dietetyczne",
+    "import:p10": "node import_partia.js partia_10_swiateczne",
+    "import:all": "node import_partia.js --all"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
