@@ -455,6 +455,7 @@ const App = () => {
       {isRecipeModalOpen && (
         <RecipeModal
           user={user}
+          userProfile={userProfile}
           categories={categories}
           initialRecipe={recipeToEdit}
           onClose={() => setIsRecipeModalOpen(false)}

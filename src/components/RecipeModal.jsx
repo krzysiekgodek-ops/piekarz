@@ -62,7 +62,7 @@ const flourDisplayValue = (f) => {
   return f.unit === 'g' ? (kg * 1000 || '') : (kg || '');
 };
 
-const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeCount = 0, recipeLimit = Infinity }) => {
+const RecipeModal = ({ user, userProfile, categories, initialRecipe, onClose, onSave, recipeCount = 0, recipeLimit = Infinity }) => {
   const isNew = !initialRecipe?.id;
   const overLimit = isNew && recipeCount >= recipeLimit;
 
