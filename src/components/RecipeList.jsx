@@ -52,7 +52,7 @@ const RecipeList = ({
       {isZakwasy ? (
         <SourdoughGuide />
       ) : (
-        <div className="px-4 pb-4 grid grid-cols-2 gap-2">
+        <div className="px-4 pb-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {filtered.map(r => {
             const isFav = favoriteIds.includes(r.id);
             return (
@@ -103,7 +103,7 @@ const RecipeList = ({
           })}
 
           {filtered.length === 0 && (
-            <div className="col-span-2 text-center text-[var(--text-dim)] text-sm font-bold py-16">
+            <div className="col-span-4 text-center text-[var(--text-dim)] text-sm font-bold py-16">
               Brak receptur w tej kategorii
             </div>
           )}

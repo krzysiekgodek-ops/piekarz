@@ -1,9 +1,10 @@
 import React from 'react';
-import { Home, BookOpen, Heart, User } from 'lucide-react';
+import { Home, BookOpen, Heart, User, Lightbulb } from 'lucide-react';
 
 const TABS = [
-  { id: 'home',    label: 'Home',      Icon: Home     },
+  { id: 'home',    label: 'Home',      Icon: Home      },
   { id: 'recipes', label: 'Receptury', Icon: BookOpen  },
+  { id: 'tips',    label: 'Porady',    Icon: Lightbulb },
   { id: 'my',      label: 'Moje',      Icon: Heart     },
   { id: 'account', label: 'Konto',     Icon: User      },
 ];
