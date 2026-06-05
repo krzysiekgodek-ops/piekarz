@@ -18,6 +18,7 @@ const EMPTY_RECIPE = {
   description: '',
   videoUrl: '',
   imageUrl: '',
+  isPublic: false,
   flours: [{ name: 'Mąka pszenna T550', kg: 1, unit: 'kg' }],
   ingredients: [],
   stages: [],
@@ -256,6 +257,30 @@ const RecipeModal = ({ user, categories, initialRecipe, onClose, onSave, recipeC
                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
+
+            {/* Widoczność — tylko admin */}
+            {userProfile?.isAdmin && (
+              <div className="flex items-center gap-3 px-1">
+                <button
+                  type="button"
+                  onClick={() => setForm(prev => ({ ...prev, isPublic: !prev.isPublic }))}
+                  className={`w-12 h-6 rounded-full transition-all flex-none relative ${form.isPublic ? '' : 'bg-[var(--border)]'}`}
+                  style={form.isPublic ? { background: ACCENT } : {}}
+                >
+                  <span
+                    className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${form.isPublic ? 'left-6' : 'left-0.5'}`}
+                  />
+                </button>
+                <div>
+                  <p className="text-xs font-black text-[var(--text)]">
+                    {form.isPublic ? 'Widoczna dla wszystkich' : 'Tylko dla zalogowanych'}
+                  </p>
+                  <p className="text-[9px] text-[var(--text-dim)]">
+                    {form.isPublic ? 'Niezalogowani widzą tę recepturę' : 'Niezalogowani widzą kłódkę'}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-1">
               <p className="text-[10px] font-black text-[var(--text-dim)] uppercase ml-4">Opis *</p>

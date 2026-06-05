@@ -259,6 +259,7 @@ const App = () => {
         description: formRecipe.description || '',
         imageUrl:    formRecipe.imageUrl || '',
         videoUrl:    formRecipe.videoUrl || '',
+        isPublic:    formRecipe.isPublic === true,
         updatedAt:   serverTimestamp(),
         ownerId:     userProfile?.isAdmin ? 'ADMIN' : user.uid,
       };
