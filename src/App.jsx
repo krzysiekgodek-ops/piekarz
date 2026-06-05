@@ -357,6 +357,7 @@ const App = () => {
             onSelectRecipe={(r) => handleSelectRecipe(r, 'recipes')}
             onOpenRecipeModal={openRecipeModal}
             onToggleFavorite={toggleFavorite}
+            onShowRegisterPrompt={() => setIsAuthModalOpen(true)}
           />
         )}
 
@@ -400,6 +401,7 @@ const App = () => {
             setTotalTarget={setTotalTarget}
             onBack={() => setActiveTab(prevTab)}
             onEditRecipe={openRecipeModal}
+            onRequestLogin={() => setIsAuthModalOpen(true)}
           />
         )}
 

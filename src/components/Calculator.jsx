@@ -4,7 +4,7 @@ import DOMPurify from 'dompurify';
 
 const ACCENT = '#c8860a';
 
-const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, onBack, onEditRecipe }) => {
+const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, onBack, onEditRecipe, onRequestLogin }) => {
   const [stagesOpen, setStagesOpen] = useState(true);
 
   const flourKg = totalTarget;
@@ -262,11 +262,11 @@ const Calculator = ({ user, userProfile, recipe, totalTarget, setTotalTarget, on
             </button>
           )}
           <button
-            onClick={() => window.print()}
+            onClick={() => user ? window.print() : onRequestLogin?.()}
             className="flex-1 py-4 text-white rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 shadow-lg active:scale-[0.97] transition-transform"
             style={{ background: ACCENT }}
           >
-            <Printer size={15} /> Drukuj
+            <Printer size={15} /> {user ? 'Drukuj' : 'Zaloguj, aby drukować'}
           </button>
         </div>
 
